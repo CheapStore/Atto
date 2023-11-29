@@ -31,4 +31,19 @@ public class CardService {
         List<CardDTO> cardList =cardRepository.getCardList();
         return cardList;
     }
+
+    public void updateCard(CardDTO cardDTO,String number) {
+        boolean update = cardRepository.update(cardDTO, number);
+        if (update){
+            System.out.println("Cart updates successfuly \uD83D\uDC4C\uD83D\uDC4C\uD83D\uDC4C\"");
+        }else {
+            System.out.println("Not fount");
+        }
+
+    }
+
+    public boolean chesk(String number) {
+      return cardRepository.chesk(number);
+
+    }
 }

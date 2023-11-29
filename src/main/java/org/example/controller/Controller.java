@@ -11,6 +11,7 @@ import org.example.utils.ScannerUtils;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class Controller {
     static ScannerUtils scanner = new ScannerUtils();
@@ -184,6 +185,7 @@ public class Controller {
                 }
             }
             case 3 -> {
+                updatecard(profile);
             }
             case 4 -> {
             }
@@ -192,6 +194,29 @@ public class Controller {
             default -> {
                 System.out.println("Wrong");
             }
+        }
+
+    }
+
+    private void updatecard(ProfileDTO profile) {
+        String number,numbernew;
+        int year;
+        do {
+            number = scanner.nextLine("enter the current card number :");
+        }while (number.trim().length()==0);
+        CardDTO card = new CardDTO();
+        boolean b = cardService.chesk(number);
+        if (b){
+            do {
+                numbernew = scanner.nextLine("enter a new card number :");
+                year = scanner.nextInt("Enter the expiration date (3-10): ");
+            }while (Objects.equals(number, numbernew)||year==0);
+            card.setNumber(numbernew);
+            card.setExp_date(LocalDate.now().plusYears(year));
+            card.setPhone(profile.getPhone());
+            cardService.updateCard(card, number);
+        }else {
+            System.out.println("Qayta urining");
         }
 
     }
