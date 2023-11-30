@@ -42,8 +42,8 @@ public class CardService {
 
     }
 
-    public boolean chesk(String number) {
-      return cardRepository.chesk(number);
+    public boolean chesk(String newnumber) {
+      return cardRepository.chesk(newnumber);
 
     }
 }

@@ -3,11 +3,9 @@ package org.example.controller;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
-import org.example.dto.TerminalDTO;
 import org.example.enums.ProfileRole;
 import org.example.enums.Status;
 import org.example.service.CardService;
-import org.example.service.TerminalService;
 import org.example.service.UserService;
 import org.example.utils.ScannerUtils;
 
@@ -19,7 +17,6 @@ public class Controller {
     static ScannerUtils scanner = new ScannerUtils();
     static UserService userService = new UserService();
     CardService cardService = new CardService();
-    TerminalService terminalService=new TerminalService();
 
 
     public void start() {
@@ -115,9 +112,14 @@ public class Controller {
                 cardMenu(profile);
             }
             case 2 -> {
-                terminalMenu(profile);
             }
             case 3 -> {
+                List<ProfileDTO> profil_list = userService.getProfillist();
+                if (profil_list != null) {
+                    for (ProfileDTO prodto : profil_list) {
+                        System.out.println(prodto);
+                    }
+                }
             }
             case 4 -> {
             }
@@ -166,87 +168,6 @@ public class Controller {
 //        20. Transaction By Card:
 //        Enter Card number:
     }
-
-    private void terminalMenu(ProfileDTO profile) {
-        System.out.println("""
-                1. Create Terminal (code unique,address)
-                2. Terminal List
-                3. Update Terminal (code,address)
-                4. Change Terminal Status
-                5. Delete
-                """);
-        int option = scanner.nextInt("Choose option: ");
-        switch (option) {
-            case 1 -> {
-                createterminal();
-            }
-            case 2 -> {
-                List<TerminalDTO> terminalist = terminalService.getTerminal();
-                if (terminalist != null) {
-                    for (TerminalDTO dto : terminalist) {
-                        System.out.println(dto);
-                    }
-                }
-            }
-            case 3 -> {
-            updateTerminal(profile);
-            }
-            case 4 -> {
-            }
-            case 5 -> {
-                delete_terminal(profile);;
-            }
-            default -> {
-                System.out.println("Wrong");
-            }
-        }
-    }
-
-    private void delete_terminal(ProfileDTO profile) {
-        String code;
-
-        do {
-            code = scanner.nextLine("enter the current terminal code :");
-        }while (code.trim().length()==0);
-        TerminalDTO terminladto = new TerminalDTO();
-        boolean b = terminalService.chesk(code);
-        if (b){
-            terminalService.delete(code);
-        }
-    }
-
-    private void updateTerminal(ProfileDTO profile) {
-        String code,newcode,adresnew;
-
-        do {
-            code = scanner.nextLine("enter the current terminal code :");
-        }while (code.trim().length()==0);
-        TerminalDTO terminladto = new TerminalDTO();
-        boolean b = terminalService.chesk(code);
-        if (b){
-            do {
-                newcode = scanner.nextLine("enter a new terminal code :");
-                adresnew = scanner.nextLine("enter a new terminal addrss ");
-            }while (Objects.equals(code, newcode));
-            terminladto.setCode(newcode);
-            terminladto.setAddress(adresnew);
-            terminalService.updateterminal(terminladto);
-        }else {
-            System.out.println("Qayta urining");
-        }
-
-    }
-
-    private void createterminal() {
-        String address,code;
-           address = scanner.nextLine("Enter terminal address: ");
-           code = scanner.nextLine("Enter terminal code ");
-        TerminalDTO terminal=new TerminalDTO();
-        terminal.setAddress(address);
-        terminal.setCode(code);
-        terminalService.creatTerminal(terminal);
-    }
-
 
     private void cardMenu(ProfileDTO profile) {
         System.out.println("""
@@ -305,6 +226,9 @@ public class Controller {
         }
 
     }
+    private void profilee(ProfileDTO profileDTO){
+        userService.profilee(profileDTO);
+    }
 
     private void createCard(ProfileDTO profile) {
         String cardNumber;
@@ -316,7 +240,6 @@ public class Controller {
         CardDTO card = new CardDTO();
         card.setNumber(cardNumber);
         card.setExp_date(LocalDate.now().plusYears(year));
-        card.setPhone(profile.getPhone());
         cardService.createCard(card);
 
     }
@@ -343,9 +266,58 @@ public class Controller {
 //        (Transaction with type 'Payment')
 
         System.out.println("""
-                1. Add Card (number) - (cartani profile ga ulab qo'yamiz.) (added_date)
-                //        Enter Card Number:""");
+                1.Add Card (number)
+                2.Card List
+                3.Card Change
+                4.Delete Card
+                5.Transaction
+                6.Make Payment
+                """);
+        int option = scanner.nextInt("Choose option: ");
 
+        switch (option) {
+            case 1 -> addcard(profile);
+            case 2 -> {
+                List<CardDTO> cardList = cardService.getCardList();
+                if (cardList != null) {
+                    for (CardDTO cardDTO : cardList) {
+                        System.out.println(cardDTO);
+                    }
+                }
+            }
+            case 3 -> {
+
+            }
+            case 4 -> {
+            }
+            case 5 -> {
+            }
+            default -> {
+                System.out.println("Wrong");
+            }
+        }
+
+
+
+    }
+
+    private void addcard(ProfileDTO profile){
+        String newCardNumber;
+        int year;
+        do {
+            newCardNumber = scanner.nextLine("Enter new Card number: ");
+        } while (newCardNumber.trim().length() == 0 );
+        CardDTO card = new CardDTO();
+        boolean chesk = cardService.chesk(newCardNumber);
+        if (chesk){
+            System.out.println("oldindan bor .");
+        }else {
+             year = scanner.nextInt("Enter year :");
+            card.setNumber(newCardNumber);
+            card.setExp_date(LocalDate.now().plusYears(year));
+            card.setPhone(profile.getPhone());
+            cardService.createCard(card);
+        }
 
     }
 

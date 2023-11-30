@@ -19,7 +19,6 @@ public class CardRepository {
             String sql = "insert into card(number,exp_date,balance,phone) values (?,?,?,?)";
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
             preparedStatement.setString(1, card.getNumber());
             preparedStatement.setDate(2, Date.valueOf(card.getExp_date()));
             preparedStatement.setDouble(3, 0);
@@ -77,20 +76,21 @@ public class CardRepository {
     }
 
 
-    public boolean chesk(String number1) {
-        boolean execute = false;
+    public boolean chesk(String newnumber) {
+           boolean execute =false;
         try {
             Connection connection = DatabaseUtil.getConnection();
-            String sql = "select  cardchek(?)";
+            String sql = "select cardchek(?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,"'"+number1+"'");
+            preparedStatement.setString(1,newnumber);
              execute = preparedStatement.execute();
             System.out.println("execute = " + execute);
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-return execute;
+            return execute;
+
 
     }
 }
