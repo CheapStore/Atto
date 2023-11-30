@@ -64,7 +64,7 @@ public class CardRepository {
         int res=0;
         try {
             Connection connection = DatabaseUtil.getConnection();
-            String sql = "update card set number=?,exp_date=? where number="+number;
+            String sql = "update card set number=?,exp_date=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, card.getNumber());
             preparedStatement.setDate(2, Date.valueOf(card.getExp_date()));
@@ -78,21 +78,19 @@ public class CardRepository {
 
 
     public boolean chesk(String number1) {
-       int res=0;
+        boolean execute = false;
         try {
             Connection connection = DatabaseUtil.getConnection();
-            String sql = "select (card.number = ?)" +
-                    "   from card " +
-                    "   where (card.number = ?)";
+            String sql = "select  cardchek(?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1,"'"+number1+"'");
-            preparedStatement.setString(2,"'"+number1+"'");
-            res= preparedStatement.executeUpdate();
+             execute = preparedStatement.execute();
+            System.out.println("execute = " + execute);
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return res!=0;
+return execute;
 
     }
 }

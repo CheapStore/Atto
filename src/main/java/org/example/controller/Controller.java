@@ -3,9 +3,11 @@ package org.example.controller;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
+import org.example.dto.TerminalDTO;
 import org.example.enums.ProfileRole;
 import org.example.enums.Status;
 import org.example.service.CardService;
+import org.example.service.TerminalService;
 import org.example.service.UserService;
 import org.example.utils.ScannerUtils;
 
@@ -17,6 +19,7 @@ public class Controller {
     static ScannerUtils scanner = new ScannerUtils();
     static UserService userService = new UserService();
     CardService cardService = new CardService();
+    TerminalService terminalService=new TerminalService();
 
 
     public void start() {
@@ -112,6 +115,7 @@ public class Controller {
                 cardMenu(profile);
             }
             case 2 -> {
+                terminalMenu(profile);
             }
             case 3 -> {
             }
@@ -162,6 +166,87 @@ public class Controller {
 //        20. Transaction By Card:
 //        Enter Card number:
     }
+
+    private void terminalMenu(ProfileDTO profile) {
+        System.out.println("""
+                1. Create Terminal (code unique,address)
+                2. Terminal List
+                3. Update Terminal (code,address)
+                4. Change Terminal Status
+                5. Delete
+                """);
+        int option = scanner.nextInt("Choose option: ");
+        switch (option) {
+            case 1 -> {
+                createterminal();
+            }
+            case 2 -> {
+                List<TerminalDTO> terminalist = terminalService.getTerminal();
+                if (terminalist != null) {
+                    for (TerminalDTO dto : terminalist) {
+                        System.out.println(dto);
+                    }
+                }
+            }
+            case 3 -> {
+            updateTerminal(profile);
+            }
+            case 4 -> {
+            }
+            case 5 -> {
+                delete_terminal(profile);;
+            }
+            default -> {
+                System.out.println("Wrong");
+            }
+        }
+    }
+
+    private void delete_terminal(ProfileDTO profile) {
+        String code;
+
+        do {
+            code = scanner.nextLine("enter the current terminal code :");
+        }while (code.trim().length()==0);
+        TerminalDTO terminladto = new TerminalDTO();
+        boolean b = terminalService.chesk(code);
+        if (b){
+            terminalService.delete(code);
+        }
+    }
+
+    private void updateTerminal(ProfileDTO profile) {
+        String code,newcode,adresnew;
+
+        do {
+            code = scanner.nextLine("enter the current terminal code :");
+        }while (code.trim().length()==0);
+        TerminalDTO terminladto = new TerminalDTO();
+        boolean b = terminalService.chesk(code);
+        if (b){
+            do {
+                newcode = scanner.nextLine("enter a new terminal code :");
+                adresnew = scanner.nextLine("enter a new terminal addrss ");
+            }while (Objects.equals(code, newcode));
+            terminladto.setCode(newcode);
+            terminladto.setAddress(adresnew);
+            terminalService.updateterminal(terminladto);
+        }else {
+            System.out.println("Qayta urining");
+        }
+
+    }
+
+    private void createterminal() {
+        String address,code;
+           address = scanner.nextLine("Enter terminal address: ");
+           code = scanner.nextLine("Enter terminal code ");
+        TerminalDTO terminal=new TerminalDTO();
+        terminal.setAddress(address);
+        terminal.setCode(code);
+        terminalService.creatTerminal(terminal);
+    }
+
 
     private void cardMenu(ProfileDTO profile) {
         System.out.println("""
