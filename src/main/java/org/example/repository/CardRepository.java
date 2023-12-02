@@ -3,6 +3,7 @@ package org.example.repository;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.enums.Status;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -59,7 +60,7 @@ public class CardRepository {
     }
 
 
-    public boolean update(CardDTO card,String number) {
+    public boolean update( CardDTO card) {
         int res=0;
         try {
             Connection connection = DatabaseUtil.getConnection();
@@ -77,20 +78,49 @@ public class CardRepository {
 
 
     public boolean chesk(String newnumber) {
-           boolean execute =false;
+boolean ex = false;
         try {
             Connection connection = DatabaseUtil.getConnection();
-            String sql = "select cardchek(?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,newnumber);
-             execute = preparedStatement.execute();
+            Statement statement = connection.createStatement();
+            String sql = "select cardchek("+"'"+newnumber+"'"+")";
+            boolean execute = statement.execute(sql);
             System.out.println("execute = " + execute);
+            ex= execute;
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-            return execute;
 
+return ex;
 
+    }
+
+    public boolean updateStatus(String number) {
+        boolean ex=false;
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            Statement statement = connection.createStatement();
+            String sql = "update  card set status='ACTIVE' where number="+"'"+number+"'";
+             ex= statement.execute(sql);
+             connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+return ex;
+    }
+
+    public boolean deletecard(String number) {
+        int i = 0;
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+        Statement statement=connection.createStatement();
+        String sql="delete from  card where number="+"'"+number+"'";
+            i = statement.executeUpdate(sql);
+          statement.close();
+        }catch (SQLException e){
+        e.printStackTrace();
+        }
+      return i!=0;
     }
 }

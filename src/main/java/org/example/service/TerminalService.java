@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.CardDTO;
 import org.example.dto.TerminalDTO;
 import org.example.repository.TerminalReporistory;
 
@@ -36,8 +37,8 @@ public class TerminalService {
        return terminalReporistory.chesk(code);
     }
 
-    public void updateterminal(TerminalDTO terminladto) {
-        boolean updateterminal = terminalReporistory.updateterminal(terminladto);
+    public void updateterminal(TerminalDTO terminladto,String old) {
+        boolean updateterminal = terminalReporistory.updateterminal(terminladto,old);
         if (updateterminal){
             System.out.println("terminal update successfuly 👌👌👌");
         }else {
@@ -52,6 +53,23 @@ public class TerminalService {
             System.out.println("terminal row  delete  successfuly 👌👌👌");
         }else {
             System.out.println("An error occurred while deleting row the terminal !!!");
+        }
+    }
+
+
+
+    public List<TerminalDTO> getTerminalList() {
+        List<TerminalDTO> terminalDTOList =terminalReporistory.getTerminalList();
+        return terminalDTOList;
+    }
+
+    public void update_status_active_terminal(String code) {
+        boolean b = terminalReporistory.updateterminal_status(code);
+        if (b) {
+            System.out.println("Terminal status update 👌");
+        }else {
+            System.out.println("Terminal status not update 🤦‍♂️");
+
         }
     }
 }

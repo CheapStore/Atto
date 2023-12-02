@@ -64,8 +64,6 @@ public class ProfileRepository {
 
     }
 
-
-
     public List<ProfileDTO> getprfile_list() {
         List<ProfileDTO> profileDTOList = new LinkedList<>();
         try {
@@ -82,11 +80,10 @@ public class ProfileRepository {
                 profileDTO.setPassword(resultSet.getString("password"));
                 profileDTO.setCreated_date(resultSet.getTimestamp("created_date").toLocalDateTime());
                 profileDTO.setStatus(Status.valueOf(resultSet.getString("status")));
-                profileDTO.setProfileRole(ProfileRole.valueOf(resultSet.getString("profileRole")));
+                profileDTO.setProfileRole(ProfileRole.valueOf(resultSet.getString("profile_role")));
                 profileDTOList.add(profileDTO);
-            }
-
             connection.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -95,4 +92,19 @@ public class ProfileRepository {
     }
 
 
+    public boolean updateProfil(ProfileDTO profileDTO, String old) {
+        int i=0;
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+        String sql="update  profile set phone=?where phone=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1,profileDTO.getPhone());
+        preparedStatement.setString(2,old);
+           i = preparedStatement.executeUpdate();
+           preparedStatement.close();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return i!=0;
+    }
 }

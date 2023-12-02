@@ -72,11 +72,11 @@ public class TerminalReporistory {
 
     }
 
-    public boolean updateterminal(TerminalDTO terminladto) {
+    public boolean updateterminal(TerminalDTO terminladto,String old) {
         int res=0;
         try {
             Connection connection = DatabaseUtil.getConnection();
-            String sql = "update terminal set code=?,address=?";
+            String sql = "update terminal set code=?,address=? where code="+"'"+old+"'";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, terminladto.getCode());
             preparedStatement.setString(2,terminladto.getAddress());
@@ -105,6 +105,46 @@ public class TerminalReporistory {
         return res!=0;
 
 
+    }
+
+    public List<TerminalDTO> getTerminalList() {
+        List<TerminalDTO> terminalist = new LinkedList<>();
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            Statement statement = connection.createStatement();
+
+            String sql = "select * from terminal";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                TerminalDTO card=new TerminalDTO();
+                card.setCode(resultSet.getString("code"));
+                card.setAddress(resultSet.getString("address"));
+                card.setStatus(Status.valueOf(resultSet.getString("status")));
+                card.setCreated_date(resultSet.getDate("created_date").toLocalDate());
+                terminalist.add(card);
+            }
+
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return terminalist;
+    }
+
+    public boolean updateterminal_status(String code) {
+        int res=0;
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            String sql = "update terminal set status='NO_ACTIVE' where code=? and  status=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1,code);
+            preparedStatement.setString(2, "ACTIVE");
+            res = preparedStatement.executeUpdate();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res!=0;
     }
 }
 

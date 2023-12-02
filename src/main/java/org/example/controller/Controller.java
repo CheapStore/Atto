@@ -3,19 +3,23 @@ package org.example.controller;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
+import org.example.dto.TerminalDTO;
 import org.example.enums.ProfileRole;
 import org.example.enums.Status;
 import org.example.service.CardService;
+import org.example.service.TerminalService;
 import org.example.service.UserService;
 import org.example.utils.ScannerUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 public class Controller {
     static ScannerUtils scanner = new ScannerUtils();
     static UserService userService = new UserService();
+    static TerminalService terminalService=new TerminalService();
     CardService cardService = new CardService();
 
 
@@ -41,7 +45,6 @@ public class Controller {
     }
 
     private void registration() {
-
         String name = scanner.nextLine("Enter name:");
         String surname = scanner.nextLine("Enter surname:");
         String phone;
@@ -50,19 +53,16 @@ public class Controller {
             phone = scanner.nextLine("Enter phoneNumber: ");
             password = scanner.nextLine("Enter password: ");
         } while (phone == null || password == null);
-
-
         ProfileDTO profile = new ProfileDTO();
         profile.setName(name);
         profile.setSurname(surname);
         profile.setPhone(phone);
         profile.setPassword(password);
         profile.setProfileRole(ProfileRole.USER);
-
-
         boolean result = userService.registration(profile);
         if (result) {
             System.out.println("Successful 👌👌👌");
+            userMenu(profile);
         } else {
             System.out.println("Error registration!!!");
         }
@@ -100,33 +100,30 @@ public class Controller {
     }
 
     private void adminMenu(ProfileDTO profile) {
-        System.out.println("""
-                1.Card
-                2.Terminal
-                3.Profile
-                4.Transaction
-                5.Statistic""");
-        int option = scanner.nextInt("Choose option: ");
-        switch (option) {
-            case 1 -> {
-                cardMenu(profile);
-            }
-            case 2 -> {
-            }
-            case 3 -> {
-                List<ProfileDTO> profil_list = userService.getProfillist();
-                if (profil_list != null) {
-                    for (ProfileDTO prodto : profil_list) {
-                        System.out.println(prodto);
-                    }
+        while (true) {
+            System.out.println("""
+                    ADMIN MENU
+                    1.Card
+                    2.Terminal
+                    3.Profile
+                    4.Transaction
+                    5.Statistic
+                    0.Exit
+                    """);
+            int option = scanner.nextInt("Choose option: ");
+            switch (option) {
+                case 1 -> cardMenu(profile);
+                case 2 -> terminalMenu(profile);
+                case 3 -> profile_menu(profile);
+                case 4 ->{
+
                 }
-            }
-            case 4 -> {
-            }
-            case 5 -> {
-            }
-            default -> {
-                System.out.println("Wrong");
+                 case 5 -> {
+                }
+                case 0-> {
+                    return;
+                }
+                default -> System.out.println("Wrong");
             }
         }
 //        (Card)
@@ -137,7 +134,7 @@ public class Controller {
 //        5. Delete Card
 //
 //        (Terminal)
-//                6. Create Terminal (code unique,address)
+//        6. Create Terminal (code unique,address)
 //        7. Terminal List
 //        8. Update Terminal (code,address)
 //        9. Change Terminal Status
@@ -169,6 +166,111 @@ public class Controller {
 //        Enter Card number:
     }
 
+    private void profile_menu(ProfileDTO profile) {
+        while (true) {
+            System.out.println("""
+                      1. Profile List
+                      2. Change Profile Status (by phone)
+                      0.Exit
+                    """);
+            int option = scanner.nextInt("Choose option: ");
+
+            switch (option) {
+                case 1 -> {
+                    List<ProfileDTO> profil_list = userService.getProfillist();
+                    if (profil_list != null) {
+                        for (ProfileDTO cardDTO : profil_list) {
+                            System.out.println(cardDTO);
+                        }
+                    }
+                }
+                case 2 -> {
+                    updateProfile(profile);
+
+                }
+                case 0 -> {
+                    return;
+                }
+                default -> System.out.println("Drong");
+
+
+            }
+        }
+    }
+
+    private void updateProfile(ProfileDTO profile) {
+        String old,neww;
+        do {
+            old = scanner.nextLine("Enter old phone number :");
+            neww = scanner.nextLine("Enter neww  phone number :");
+        }while (old.isEmpty()||neww.isEmpty());
+        ProfileDTO profileDTO=new ProfileDTO();
+        profileDTO.setPhone(neww);
+        userService.updateProfile(profileDTO,old);
+    }
+
+    private void terminalMenu(ProfileDTO profile) {
+        while (true) {
+            System.out.println("""
+                    1. Create Terminal (code unique,address)
+                    2. Terminal List
+                    3. Update Terminal (code,address)
+                    4. Change Terminal Status
+                    5. Delete
+                    0.Exit
+                    """);
+            int option = scanner.nextInt("Choose option: ");
+
+            switch (option) {
+                case 1 -> creatterminal(profile);
+                case 2 -> {
+                    List<TerminalDTO> terminalList = terminalService.getTerminalList();
+                    if (terminalList != null) {
+                        for (TerminalDTO terminalDTO : terminalList) {
+                            System.out.println(terminalDTO);
+                        }
+                    }
+                }
+                case 3 -> updateterminal(profile);
+                case 4 -> {
+                    changestatusTerminal(profile);
+                }
+                case 5 -> {
+                }
+                case 0-> {
+                    return;
+                }
+                default -> {
+                    System.out.println("Wrong");
+                }
+            }
+
+
+        }
+    }
+
+    private void changestatusTerminal(ProfileDTO profile) {
+        String code;
+        do {
+            code = scanner.nextLine(" enter terminal code:");
+        }while (code.isEmpty());
+        terminalService.update_status_active_terminal(code);
+    }
+
+    private void updateterminal(ProfileDTO profile) {
+        String old,neww,newwAdres;
+        do {
+            old = scanner.nextLine("old enter terminal code:");
+            neww= scanner.nextLine("new enter terminal code:");
+            newwAdres=scanner.nextLine("new enter terminal adress:");
+        }while (old.isEmpty()||neww.isEmpty());
+        TerminalDTO terminalDTO=new TerminalDTO();
+        terminalDTO.setAddress(newwAdres);
+        terminalDTO.setCode(neww);
+        terminalService.updateterminal(terminalDTO,old);
+
+    }
+
     private void cardMenu(ProfileDTO profile) {
         System.out.println("""
                 1. Create Card(number,exp_date)
@@ -179,9 +281,7 @@ public class Controller {
         int option = scanner.nextInt("Choose option: ");
 
         switch (option) {
-            case 1 -> {
-                createCard(profile);
-            }
+            case 1 -> createCard(profile);
             case 2 -> {
                 List<CardDTO> cardList = cardService.getCardList();
                 if (cardList != null) {
@@ -190,18 +290,37 @@ public class Controller {
                     }
                 }
             }
-            case 3 -> {
-                updatecard(profile);
-            }
-            case 4 -> {
-            }
-            case 5 -> {
-            }
+            case 3 -> updatecard(profile);
+            case 4 -> update_status_active(profile);
+            case 5 -> deletea_card(profile);
+
             default -> {
                 System.out.println("Wrong");
             }
         }
 
+    }
+
+    private void deletea_card(ProfileDTO profile) {
+        String number;
+        do {
+            number = scanner.nextLine("enter the current card number :");
+        } while (number.trim().isEmpty());
+
+        cardService.delete_card(number);
+
+    }
+
+    private void update_status_active(ProfileDTO profile) {
+        String number;
+        int year;
+        do {
+            number = scanner.nextLine("enter the current card number :");
+        } while (number.trim().isEmpty());
+        Boolean b = cardService.chesk(number);
+        if (b) {
+cardService.updateStatus(number);
+        }
     }
 
     private void updatecard(ProfileDTO profile) {
@@ -210,26 +329,37 @@ public class Controller {
         do {
             number = scanner.nextLine("enter the current card number :");
         }while (number.trim().length()==0);
-        CardDTO card = new CardDTO();
-        boolean b = cardService.chesk(number);
+        Boolean b = cardService.chesk(number);
         if (b){
             do {
                 numbernew = scanner.nextLine("enter a new card number :");
                 year = scanner.nextInt("Enter the expiration date (3-10): ");
-            }while (Objects.equals(number, numbernew)||year==0);
+            }while (year==0);
+            CardDTO card = new CardDTO();
             card.setNumber(numbernew);
             card.setExp_date(LocalDate.now().plusYears(year));
-            card.setPhone(profile.getPhone());
-            cardService.updateCard(card, number);
+            cardService.updateCard(card);
         }else {
             System.out.println("Qayta urining");
         }
 
     }
-    private void profilee(ProfileDTO profileDTO){
-        userService.profilee(profileDTO);
+    private void profilee(){
+        userService.profilee();
     }
+       private void creatterminal(ProfileDTO profileDTO){
+           String code,adress;
 
+           do {
+               code = scanner.nextLine("Enter terminal code: ");
+               adress = scanner.nextLine("Adress:");
+           } while (code.trim().length() == 0);
+           TerminalDTO terminaldto = new TerminalDTO();
+           terminaldto.setCode(code);
+           terminaldto.setAddress(adress);
+           terminalService.creatTerminal(terminaldto);
+
+       }
     private void createCard(ProfileDTO profile) {
         String cardNumber;
         int year;
@@ -240,6 +370,7 @@ public class Controller {
         CardDTO card = new CardDTO();
         card.setNumber(cardNumber);
         card.setExp_date(LocalDate.now().plusYears(year));
+        card.setPhone(profile.getPhone());
         cardService.createCard(card);
 
     }
@@ -264,39 +395,63 @@ public class Controller {
 //        Enter cardNumber:
 //        Enter terminal number:
 //        (Transaction with type 'Payment')
+               while (true) {
+            System.out.println("""
+                    USER MENU
+                   1.My Card
+                   2.ReFill.
+                   3.Transactions
+                   4.Make Payment
+                   0.Exit
+                    """);
+    int option = scanner.nextInt("Choose option: ");
 
-        System.out.println("""
-                1.Add Card (number)
-                2.Card List
-                3.Card Change
-                4.Delete Card
-                5.Transaction
-                6.Make Payment
-                """);
-        int option = scanner.nextInt("Choose option: ");
-
-        switch (option) {
-            case 1 -> addcard(profile);
-            case 2 -> {
-                List<CardDTO> cardList = cardService.getCardList();
-                if (cardList != null) {
-                    for (CardDTO cardDTO : cardList) {
-                        System.out.println(cardDTO);
-                    }
+    switch (option) {
+        case 1 -> mycardmenu(profile);
+//                addcard(profile);
+        case 2 -> {
+            List<CardDTO> cardList = cardService.getCardList();
+            if (cardList != null) {
+                for (CardDTO cardDTO : cardList) {
+                    System.out.println(cardDTO);
                 }
             }
-            case 3 -> {
+        }
+        case 3 -> {
+        }
+        case 4 -> {
+        }
+        case 5 -> {
+        }
+        case 0-> {
+            return;
+        }
+        default -> System.out.println("Wrong");
+    }
 
-            }
-            case 4 -> {
-            }
-            case 5 -> {
-            }
-            default -> {
-                System.out.println("Wrong");
+}
+
+    }
+    private void mycardmenu(ProfileDTO profile){
+        while (true) {
+            System.out.println("""
+                    1.Add Card.
+                    2.List of Card.
+                    3.Change Card Status.
+                    4.Delete Card.
+                    5.Update Card.
+                    0.Exit."
+                    """);
+            int i = scanner.nextInt("Choose option: ");
+            switch (i){
+                case 1->addcard(profile);
+                case 2->cardService.getCardList();
+                case 0-> {
+                    return;
+                }
+                default -> System.out.println("Wrong:");
             }
         }
-
 
 
     }
@@ -305,20 +460,14 @@ public class Controller {
         String newCardNumber;
         int year;
         do {
-            newCardNumber = scanner.nextLine("Enter new Card number: ");
-        } while (newCardNumber.trim().length() == 0 );
+            newCardNumber = scanner.nextLine("Enter  Card number: ");
+             year = scanner.nextInt("enter year:");
+        } while (newCardNumber.trim().length() == 0);
         CardDTO card = new CardDTO();
-        boolean chesk = cardService.chesk(newCardNumber);
-        if (chesk){
-            System.out.println("oldindan bor .");
-        }else {
-             year = scanner.nextInt("Enter year :");
-            card.setNumber(newCardNumber);
-            card.setExp_date(LocalDate.now().plusYears(year));
-            card.setPhone(profile.getPhone());
-            cardService.createCard(card);
-        }
-
+        card.setNumber(newCardNumber);
+        card.setExp_date(LocalDate.now().plusYears(year));
+        card.setPhone(profile.getPhone());
+        cardService.createCard(card);
     }
 
     private int getAction() {

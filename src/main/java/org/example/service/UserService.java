@@ -19,10 +19,7 @@ public class UserService {
 
     public ProfileDTO login(ProfileDTO profileDTO) {
         ProfileDTO profile = profileRepository.login(profileDTO);
-
-
         return profile;
-
     }
 
     public boolean registration(ProfileDTO profile) {
@@ -30,7 +27,7 @@ public class UserService {
         return result;
     }
 
-    public List<ProfileDTO> profilee(ProfileDTO profileDTO) {
+    public List<ProfileDTO> profilee() {
         List<ProfileDTO> profileDTOList = profileRepository.getprfile_list();
         return profileDTOList;
     }
@@ -39,5 +36,12 @@ public class UserService {
     public List<ProfileDTO> getProfillist() {
         List<ProfileDTO> cardList =profileRepository.getprfile_list();
         return cardList;
+    }
+
+    public void updateProfile(ProfileDTO profileDTO, String old) {
+        boolean b = profileRepository.updateProfil(profileDTO, old);
+        if (b){
+            System.out.println("");
+        }
     }
 }
